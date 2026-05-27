@@ -15,13 +15,11 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ("id", "username", "email", "first_name", "last_name", "password", "role")
+        fields = ("id", "username", "email", "first_name", "last_name", "password")
 
     def create(self, validated_data):
         password = validated_data.pop("password")
-        user = User(**validated_data)
+        user = User(**validated_data, role=User.Role.VIEWER)
         user.set_password(password)
-        if user.role == User.Role.ADMIN:
-            user.is_staff = True
         user.save()
         return user

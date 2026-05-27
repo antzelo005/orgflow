@@ -133,9 +133,11 @@ OrgFlow uses JWT authentication with access and refresh tokens.
 ### Roles
 
 - `Admin`
+  - Created only through Django admin, `createsuperuser`, or the demo seed command
   - Can create, update, and delete departments and employees
   - Can access all read endpoints
 - `Viewer`
+  - Default role for all public registrations
   - Can read data
   - Cannot create, edit, or delete records
 
@@ -145,6 +147,12 @@ OrgFlow uses JWT authentication with access and refresh tokens.
 - `POST /api/auth/login/`
 - `POST /api/auth/refresh/`
 - `GET /api/auth/me/`
+
+### Registration Rules
+
+- Public registration always creates a `viewer` account
+- The register endpoint does not allow clients to choose `admin`
+- Administrative users must be created through Django admin, `python manage.py createsuperuser`, or `python manage.py seed_demo_data`
 
 ## Responsive Design
 
@@ -300,26 +308,26 @@ Use these accounts:
 
 ```text
 orgManagement/
-├── backend/
-│   ├── apps/
-│   │   ├── accounts/
-│   │   └── organization/
-│   ├── config/
-│   ├── manage.py
-│   ├── requirements.txt
-│   └── .env.example
-├── frontend/
-│   ├── public/
-│   ├── src/
-│   │   ├── api/
-│   │   ├── app/
-│   │   ├── components/
-│   │   ├── features/
-│   │   ├── pages/
-│   │   └── styles/
-│   ├── package.json
-│   └── .env.example
-└── README.md
+|-- backend/
+|   |-- apps/
+|   |   |-- accounts/
+|   |   `-- organization/
+|   |-- config/
+|   |-- manage.py
+|   |-- requirements.txt
+|   `-- .env.example
+|-- frontend/
+|   |-- public/
+|   |-- src/
+|   |   |-- api/
+|   |   |-- app/
+|   |   |-- components/
+|   |   |-- features/
+|   |   |-- pages/
+|   |   `-- styles/
+|   |-- package.json
+|   `-- .env.example
+`-- README.md
 ```
 
 ## Security Considerations

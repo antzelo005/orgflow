@@ -49,6 +49,17 @@ class EmployeeSerializer(serializers.ModelSerializer):
         employee = self.instance
         if employee and value and employee.id == value.id:
             raise serializers.ValidationError("An employee cannot manage themselves.")
+
+        if not employee or not value:
+            return value
+
+        current_manager = value
+        while current_manager is not None:
+            if current_manager.id == employee.id:
+                raise serializers.ValidationError(
+                    "This manager assignment would create a circular reporting chain."
+                )
+            current_manager = current_manager.manager
         return value
 
 
@@ -74,7 +85,17 @@ class OrganizationNodeSerializer(serializers.ModelSerializer):
         return f"{obj.first_name} {obj.last_name}"
 
     def get_reports(self, obj):
+        reports_by_manager = self.context.get("reports_by_manager")
+        if reports_by_manager is not None:
+            reports = reports_by_manager.get(obj.id, [])
+            return OrganizationNodeSerializer(
+                reports,
+                many=True,
+                context=self.context,
+            ).data
+
         return OrganizationNodeSerializer(
             obj.subordinates.select_related("department").all(),
             many=True,
+            context=self.context,
         ).data

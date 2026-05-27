@@ -65,5 +65,23 @@ class OrganizationTreeView(generics.GenericAPIView):
     permission_classes = [IsAdminOrReadOnly]
 
     def get(self, request):
-        roots = Employee.objects.filter(manager__isnull=True).select_related("department").prefetch_related("subordinates__department")
-        return Response(OrganizationNodeSerializer(roots, many=True).data)
+        employees = list(
+            Employee.objects.select_related("department", "manager")
+            .all()
+            .order_by("first_name", "last_name")
+        )
+        reports_by_manager = {}
+        roots = []
+
+        for employee in employees:
+            if employee.manager_id is None:
+                roots.append(employee)
+            else:
+                reports_by_manager.setdefault(employee.manager_id, []).append(employee)
+
+        serializer = OrganizationNodeSerializer(
+            roots,
+            many=True,
+            context={"reports_by_manager": reports_by_manager},
+        )
+        return Response(serializer.data)
