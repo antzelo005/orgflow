@@ -29,3 +29,22 @@ export async function saveEmployee(payload: Partial<Employee>) {
 export async function deleteEmployee(id: number) {
   await api.delete(`/employees/${id}/`);
 }
+
+export async function exportEmployeesCsv(filters: EmployeeFilters = {}) {
+  const response = await api.get("/employees/export/", {
+    params: filters,
+    responseType: "blob",
+  });
+  return response.data as Blob;
+}
+
+export async function importEmployeesCsv(file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await api.post("/employees/import-csv/", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return response.data as { detail: string; errors?: string[] };
+}

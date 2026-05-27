@@ -35,10 +35,14 @@ Replace the placeholder paths above with actual screenshots after capturing the 
 - JWT-based authentication with login and registration
 - Role-based access control with `Admin` and `Viewer` roles
 - Department CRUD with name, description, and location
+- Department open positions tracking
 - Employee CRUD with manager relationships and department assignment
 - Organizational hierarchy with top-level employees and nested reporting lines
 - Expand/collapse organizational chart view
 - Dashboard metrics for workforce and departments
+- CSV export for employees and departments
+- Admin CSV import for employee bulk creation
+- Manager visibility with direct report counts and subordinate lists
 - Employee search by name, email, and job title
 - Filters by department and employee status
 - Protected frontend routes
@@ -94,6 +98,7 @@ OrgFlow follows a decoupled client-server architecture:
 - Role permissions
 - Dashboard summary data
 - Organizational tree data
+- CSV import and export workflows
 - Demo data seeding
 
 ### Frontend Responsibilities
@@ -123,6 +128,7 @@ The database is centered around three main entities:
 - One employee belongs to one department
 - One employee can have one manager
 - One manager can supervise many employees
+- One department can define a lightweight `open_positions` count for vacant roles
 
 This manager relationship enables a recursive organizational tree structure for chart visualization.
 
@@ -261,6 +267,7 @@ VITE_API_BASE_URL=http://127.0.0.1:8000/api
 
 - `GET /api/departments/`
 - `POST /api/departments/`
+- `GET /api/departments/export/`
 - `GET /api/departments/{id}/`
 - `PUT /api/departments/{id}/`
 - `DELETE /api/departments/{id}/`
@@ -269,6 +276,8 @@ VITE_API_BASE_URL=http://127.0.0.1:8000/api
 
 - `GET /api/employees/`
 - `POST /api/employees/`
+- `GET /api/employees/export/`
+- `POST /api/employees/import-csv/`
 - `GET /api/employees/{id}/`
 - `PUT /api/employees/{id}/`
 - `DELETE /api/employees/{id}/`
@@ -286,6 +295,48 @@ Example:
 ```text
 /api/employees/?search=manager&department=2&status=active
 ```
+
+## Export and Import Usage
+
+### CSV Export
+
+- Employees can be exported from the Employees page using the `Export CSV` button
+- Departments can be exported from the Departments page using the `Export CSV` button
+- Employee export respects the currently selected search and filter values
+
+### CSV Import
+
+- Admin users can bulk import employees from the Employees page using the `Import CSV` button
+- The uploaded CSV must include these required columns:
+  - `first_name`
+  - `last_name`
+  - `email`
+  - `job_title`
+  - `department`
+  - `hire_date`
+- Optional columns:
+  - `phone`
+  - `manager_email`
+  - `status`
+  - `profile_image_url`
+- `hire_date` must use `YYYY-MM-DD`
+- `department` must match an existing department name
+- `manager_email` must match an existing employee email if provided
+
+Example employee import header:
+
+```csv
+first_name,last_name,email,phone,job_title,department,manager_email,hire_date,status,profile_image_url
+```
+
+## Vacant Positions
+
+Vacant roles are tracked through the `open_positions` field on each department.
+
+- Departments can define how many open roles currently exist
+- The value appears on the Departments page
+- The dashboard shows total open positions across the organization
+- Department metrics show both employee count and open positions
 
 ## Demo Credentials
 
@@ -336,6 +387,7 @@ orgManagement/
 - JWT is used instead of session-based frontend authentication
 - Protected routes prevent unauthorized frontend access
 - Role-based permissions restrict write operations to admins
+- CSV import validates required fields, department existence, duplicate emails, and manager references
 - Passwords are stored using Django's secure hashing system
 - No database credentials are hardcoded directly inside application logic
 
@@ -353,7 +405,7 @@ For production use, additional improvements would include:
 - Employee profile image upload support
 - Pagination for large employee datasets
 - Department-level analytics visualizations
-- Export to PDF or CSV
+- Export to PDF
 - Activity logs and audit history
 - Password reset workflow
 - Unit and integration test coverage expansion

@@ -231,6 +231,12 @@ label {
   gap: 1rem;
 }
 
+.page-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
 .page-header h2 {
   margin: 0.35rem 0;
   font-size: clamp(2rem, 3vw, 3rem);
@@ -245,7 +251,7 @@ label {
 }
 
 .stats-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .panel-grid {
@@ -370,6 +376,10 @@ th {
   padding: 0.82rem 1rem;
   background: transparent;
   color: #f4f7ff;
+}
+
+.hidden-file-input {
+  display: none;
 }
 
 .primary-button {

@@ -1,15 +1,16 @@
 import { FormEvent, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
+import { downloadBlob } from "../api/download";
 import { Department } from "../api/types";
 import { EmptyState } from "../components/ui/EmptyState";
 import { LoadingScreen } from "../components/ui/LoadingScreen";
 import { Modal } from "../components/ui/Modal";
 import { PageHeader } from "../components/ui/PageHeader";
 import { useAuth } from "../features/auth/AuthContext";
-import { deleteDepartment, listDepartments, saveDepartment } from "../features/departments/departmentsApi";
+import { deleteDepartment, exportDepartmentsCsv, listDepartments, saveDepartment } from "../features/departments/departmentsApi";
 
-const initialForm = { name: "", description: "", location: "" };
+const initialForm = { name: "", description: "", location: "", open_positions: 0 };
 
 export function DepartmentsPage() {
   const { isAdmin } = useAuth();
@@ -40,6 +41,7 @@ export function DepartmentsPage() {
       name: department.name,
       description: department.description,
       location: department.location,
+      open_positions: department.open_positions,
     });
     setModalOpen(true);
   };
@@ -66,6 +68,16 @@ export function DepartmentsPage() {
     }
   };
 
+  const handleExport = async () => {
+    try {
+      const blob = await exportDepartmentsCsv();
+      downloadBlob(blob, "departments.csv");
+      toast.success("Departments exported.");
+    } catch {
+      toast.error("Unable to export departments.");
+    }
+  };
+
   if (loading) {
     return <LoadingScreen label="Loading departments..." />;
   }
@@ -75,7 +87,18 @@ export function DepartmentsPage() {
       <PageHeader
         title="Departments"
         description="Manage business units, office locations, and core descriptions."
-        action={isAdmin ? <button className="primary-button" onClick={openCreate}>New Department</button> : undefined}
+        action={
+          <div className="page-actions">
+            <button className="ghost-button" onClick={() => void handleExport()}>
+              Export CSV
+            </button>
+            {isAdmin && (
+              <button className="primary-button" onClick={openCreate}>
+                New Department
+              </button>
+            )}
+          </div>
+        }
       />
 
       {departments.length === 0 ? (
@@ -88,6 +111,7 @@ export function DepartmentsPage() {
                 <th>Name</th>
                 <th>Description</th>
                 <th>Location</th>
+                <th>Open Positions</th>
                 <th>Employees</th>
                 {isAdmin && <th />}
               </tr>
@@ -98,6 +122,7 @@ export function DepartmentsPage() {
                   <td>{department.name}</td>
                   <td>{department.description}</td>
                   <td>{department.location}</td>
+                  <td>{department.open_positions}</td>
                   <td>{department.employee_count ?? 0}</td>
                   {isAdmin && (
                     <td className="table-actions">
@@ -125,6 +150,15 @@ export function DepartmentsPage() {
           <label>
             Location
             <input value={form.location} onChange={(event) => setForm({ ...form, location: event.target.value })} />
+          </label>
+          <label>
+            Open positions
+            <input
+              type="number"
+              min={0}
+              value={form.open_positions}
+              onChange={(event) => setForm({ ...form, open_positions: Number(event.target.value) })}
+            />
           </label>
           <button className="primary-button">{editing ? "Save Changes" : "Create Department"}</button>
         </form>

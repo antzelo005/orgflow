@@ -26,7 +26,7 @@ export function DashboardPage() {
 
   return (
     <section className="page-section">
-      <PageHeader title="Dashboard" description="Live overview of departments, workforce size, and recent additions." />
+      <PageHeader title="Dashboard" description="Live overview of departments, workforce size, recent additions, and open roles." />
 
       <div className="stats-grid">
         <div className="stat-card">
@@ -36,6 +36,10 @@ export function DashboardPage() {
         <div className="stat-card">
           <span>Total departments</span>
           <strong>{data.total_departments}</strong>
+        </div>
+        <div className="stat-card">
+          <span>Open positions</span>
+          <strong>{data.total_open_positions}</strong>
         </div>
       </div>
 
@@ -49,7 +53,7 @@ export function DashboardPage() {
               <div key={item.name}>
                 <div className="bar-label">
                   <span>{item.name}</span>
-                  <strong>{item.value}</strong>
+                  <strong>{item.value} employees / {item.open_positions} open</strong>
                 </div>
                 <div className="bar-track">
                   <div className="bar-fill" style={{ width: `${Math.max(item.value * 12, 10)}%` }} />
@@ -72,7 +76,7 @@ export function DashboardPage() {
                   <div>
                     <strong>{employee.full_name}</strong>
                     <p>
-                      {employee.job_title} · {employee.department_name}
+                      {employee.job_title} | {employee.department_name}
                     </p>
                   </div>
                   <span className={`status-pill ${employee.status}`}>{employee.status.replace("_", " ")}</span>

@@ -8,13 +8,15 @@ class DepartmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Department
-        fields = ("id", "name", "description", "location", "employee_count", "created_at", "updated_at")
+        fields = ("id", "name", "description", "location", "open_positions", "employee_count", "created_at", "updated_at")
 
 
 class EmployeeSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
     department_name = serializers.CharField(source="department.name", read_only=True)
     manager_name = serializers.SerializerMethodField()
+    subordinate_count = serializers.IntegerField(read_only=True)
+    direct_reports = serializers.SerializerMethodField()
 
     class Meta:
         model = Employee
@@ -30,6 +32,8 @@ class EmployeeSerializer(serializers.ModelSerializer):
             "department_name",
             "manager",
             "manager_name",
+            "subordinate_count",
+            "direct_reports",
             "profile_image_url",
             "hire_date",
             "status",
@@ -61,6 +65,21 @@ class EmployeeSerializer(serializers.ModelSerializer):
                 )
             current_manager = current_manager.manager
         return value
+
+    def get_direct_reports(self, obj):
+        reports = getattr(obj, "prefetched_direct_reports", None)
+        if reports is None:
+            reports = obj.subordinates.all()[:5]
+        return [
+            {
+                "id": report.id,
+                "full_name": f"{report.first_name} {report.last_name}",
+                "job_title": report.job_title,
+                "email": report.email,
+                "status": report.status,
+            }
+            for report in reports
+        ]
 
 
 class OrganizationNodeSerializer(serializers.ModelSerializer):

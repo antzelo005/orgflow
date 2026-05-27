@@ -1,7 +1,8 @@
-import { FormEvent, useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 
+import { downloadBlob } from "../api/download";
 import { Department, Employee } from "../api/types";
 import { EmptyState } from "../components/ui/EmptyState";
 import { LoadingScreen } from "../components/ui/LoadingScreen";
@@ -9,7 +10,7 @@ import { Modal } from "../components/ui/Modal";
 import { PageHeader } from "../components/ui/PageHeader";
 import { useAuth } from "../features/auth/AuthContext";
 import { listDepartments } from "../features/departments/departmentsApi";
-import { deleteEmployee, listEmployees, saveEmployee } from "../features/employees/employeesApi";
+import { deleteEmployee, exportEmployeesCsv, importEmployeesCsv, listEmployees, saveEmployee } from "../features/employees/employeesApi";
 
 const initialEmployee = {
   first_name: "",
@@ -21,7 +22,7 @@ const initialEmployee = {
   manager: "",
   profile_image_url: "",
   hire_date: "",
-  status: "active",
+  status: "active" as Employee["status"],
 };
 
 export function EmployeesPage() {
@@ -33,6 +34,7 @@ export function EmployeesPage() {
   const [editing, setEditing] = useState<Employee | null>(null);
   const [filters, setFilters] = useState({ search: "", department: "", status: "" });
   const [form, setForm] = useState(initialEmployee);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const loadData = async () => {
     const [employeeData, departmentData] = await Promise.all([listEmployees(filters), listDepartments()]);
@@ -102,6 +104,46 @@ export function EmployeesPage() {
     }
   };
 
+  const handleExport = async () => {
+    try {
+      const blob = await exportEmployeesCsv(filters);
+      downloadBlob(blob, "employees.csv");
+      toast.success("Employees exported.");
+    } catch {
+      toast.error("Unable to export employees.");
+    }
+  };
+
+  const handleImportChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    try {
+      const response = await importEmployeesCsv(file);
+      toast.success(response.detail);
+      await loadData();
+    } catch (error: unknown) {
+      const detail =
+        typeof error === "object" &&
+        error !== null &&
+        "response" in error &&
+        typeof error.response === "object" &&
+        error.response !== null &&
+        "data" in error.response &&
+        typeof error.response.data === "object" &&
+        error.response.data !== null &&
+        "errors" in error.response.data &&
+        Array.isArray(error.response.data.errors)
+          ? (error.response.data.errors as string[]).slice(0, 3).join(" ")
+          : "Unable to import employees.";
+      toast.error(detail);
+    } finally {
+      event.target.value = "";
+    }
+  };
+
   if (loading) {
     return <LoadingScreen label="Loading employees..." />;
   }
@@ -111,7 +153,30 @@ export function EmployeesPage() {
       <PageHeader
         title="Employees"
         description="Search people, manage assignments, and keep reporting lines current."
-        action={isAdmin ? <button className="primary-button" onClick={openCreate}>New Employee</button> : undefined}
+        action={
+          <div className="page-actions">
+            <button className="ghost-button" onClick={() => void handleExport()}>
+              Export CSV
+            </button>
+            {isAdmin && (
+              <>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".csv,text/csv"
+                  className="hidden-file-input"
+                  onChange={(event) => void handleImportChange(event)}
+                />
+                <button className="ghost-button" onClick={() => fileInputRef.current?.click()}>
+                  Import CSV
+                </button>
+                <button className="primary-button" onClick={openCreate}>
+                  New Employee
+                </button>
+              </>
+            )}
+          </div>
+        }
       />
 
       <div className="filters-card">
@@ -147,6 +212,7 @@ export function EmployeesPage() {
                 <th>Job title</th>
                 <th>Department</th>
                 <th>Manager</th>
+                <th>Reports</th>
                 <th>Status</th>
                 <th />
               </tr>
@@ -163,6 +229,7 @@ export function EmployeesPage() {
                   <td>{employee.job_title}</td>
                   <td>{employee.department_name}</td>
                   <td>{employee.manager_name ?? "Top-level"}</td>
+                  <td>{employee.subordinate_count}</td>
                   <td>
                     <span className={`status-pill ${employee.status}`}>{employee.status.replace("_", " ")}</span>
                   </td>
@@ -234,7 +301,10 @@ export function EmployeesPage() {
             </label>
             <label>
               Status
-              <select value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value })}>
+              <select
+                value={form.status}
+                onChange={(event) => setForm({ ...form, status: event.target.value as Employee["status"] })}
+              >
                 <option value="active">Active</option>
                 <option value="on_leave">On Leave</option>
                 <option value="inactive">Inactive</option>

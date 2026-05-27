@@ -5,6 +5,7 @@ class Department(models.Model):
     name = models.CharField(max_length=120, unique=True)
     description = models.TextField(blank=True)
     location = models.CharField(max_length=120, blank=True)
+    open_positions = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -39,19 +39,23 @@ class Command(BaseCommand):
         viewer_user.save()
 
         departments_data = [
-            ("Executive", "Strategic leadership and corporate planning", "Athens HQ"),
-            ("Engineering", "Product engineering and platform delivery", "Athens HQ"),
-            ("Human Resources", "Talent operations and people support", "Patras Office"),
-            ("Finance", "Accounting, payroll, and forecasts", "Thessaloniki Office"),
-            ("Sales", "Customer acquisition and partnerships", "Remote"),
+            ("Executive", "Strategic leadership and corporate planning", "Athens HQ", 1),
+            ("Engineering", "Product engineering and platform delivery", "Athens HQ", 3),
+            ("Human Resources", "Talent operations and people support", "Patras Office", 1),
+            ("Finance", "Accounting, payroll, and forecasts", "Thessaloniki Office", 2),
+            ("Sales", "Customer acquisition and partnerships", "Remote", 2),
         ]
 
         departments = []
-        for name, description, location in departments_data:
+        for name, description, location, open_positions in departments_data:
             department, _ = Department.objects.get_or_create(
                 name=name,
-                defaults={"description": description, "location": location},
+                defaults={"description": description, "location": location, "open_positions": open_positions},
             )
+            department.description = description
+            department.location = location
+            department.open_positions = open_positions
+            department.save(update_fields=["description", "location", "open_positions"])
             departments.append(department)
 
         ceo, _ = Employee.objects.get_or_create(

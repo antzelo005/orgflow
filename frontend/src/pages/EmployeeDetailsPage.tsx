@@ -66,6 +66,28 @@ export function EmployeeDetailsPage() {
           </div>
         </div>
       </div>
+      <div className="panel-card">
+        <div className="panel-head">
+          <h3>Direct reports</h3>
+        </div>
+        {employee.direct_reports.length === 0 ? (
+          <EmptyState title="No direct reports" description="This employee does not currently manage anyone." />
+        ) : (
+          <div className="list-stack">
+            {employee.direct_reports.map((report) => (
+              <div className="list-item" key={report.id}>
+                <div>
+                  <strong>{report.full_name}</strong>
+                  <p>
+                    {report.job_title} | {report.email}
+                  </p>
+                </div>
+                <span className={`status-pill ${report.status}`}>{report.status.replace("_", " ")}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </section>
   );
 }

@@ -18,3 +18,8 @@ export async function saveDepartment(payload: Partial<Department>) {
 export async function deleteDepartment(id: number) {
   await api.delete(`/departments/${id}/`);
 }
+
+export async function exportDepartmentsCsv() {
+  const response = await api.get("/departments/export/", { responseType: "blob" });
+  return response.data as Blob;
+}

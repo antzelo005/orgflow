@@ -14,9 +14,18 @@ export interface Department {
   name: string;
   description: string;
   location: string;
+  open_positions: number;
   employee_count?: number;
   created_at: string;
   updated_at: string;
+}
+
+export interface EmployeeSummary {
+  id: number;
+  full_name: string;
+  job_title: string;
+  email: string;
+  status: "active" | "on_leave" | "inactive";
 }
 
 export interface Employee {
@@ -31,6 +40,8 @@ export interface Employee {
   department_name: string;
   manager: number | null;
   manager_name: string | null;
+  subordinate_count: number;
+  direct_reports: EmployeeSummary[];
   profile_image_url: string;
   hire_date: string;
   status: "active" | "on_leave" | "inactive";
@@ -41,7 +52,8 @@ export interface Employee {
 export interface DashboardMetrics {
   total_employees: number;
   total_departments: number;
-  employees_per_department: Array<{ name: string; value: number }>;
+  total_open_positions: number;
+  employees_per_department: Array<{ name: string; value: number; open_positions: number }>;
   recent_employees: Employee[];
 }
 
