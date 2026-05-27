@@ -22,13 +22,21 @@ The project is designed to be:
 
 ## Screenshots
 
-- Login page screenshot (`(assets/screenshots/login-page.png)`)
-- Dashboard overview screenshot (`(assets/screenshots/dashboard-overview.png)`)
-- Employees management screenshot (`(assets/screenshots/employees-page.png)`)
-- Departments management screenshot (`(assets/screenshots/departments-page.png)`)
-- Organizational chart screenshot (`(assets/screenshots/org-chart-page.png)`)
+- Login page screenshot
+  <img width="1871" height="915" alt="image" src="https://github.com/user-attachments/assets/4c1245e5-0c11-4a11-aac3-e9bdf6be7a3f" />
 
-Replace the placeholder paths above with actual screenshots after capturing the UI.
+- Dashboard overview screenshot
+  <img width="1874" height="910" alt="image" src="https://github.com/user-attachments/assets/a638475a-ce2d-46da-a935-55c55a72c411" />
+
+- Employees management screenshot
+  <img width="1843" height="905" alt="image" src="https://github.com/user-attachments/assets/1c4cc88e-c5fa-43f4-ada3-db93b5416213" />
+
+- Departments management screenshot
+  <img width="1848" height="896" alt="image" src="https://github.com/user-attachments/assets/3e1f6a5e-ea49-4661-b535-524f9a3f9b03" />
+
+- Organizational chart screenshot
+- <img width="1838" height="903" alt="image" src="https://github.com/user-attachments/assets/38650563-206d-4e79-b14a-3ff0c9405e9b" />
+
 
 ## Features
 
@@ -413,13 +421,12 @@ For production use, additional improvements would include:
 - CI/CD pipeline integration
 
 ## License
-
 This project is provided for educational and portfolio purposes.
 
-You can replace this section with a formal license such as `MIT` if you plan to publish the repository publicly.
+
 
 ## Credits
 
-- Developed as a university assignment project for Theme 17
+- Developed as a university assignment project
 - Built with Django, Django REST Framework, PostgreSQL, React, TypeScript, and Vite
 - UI direction inspired by modern corporate SaaS dashboard design patterns
