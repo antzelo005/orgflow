@@ -241,9 +241,9 @@ ALLOWED_HOSTS=127.0.0.1,localhost
 
 DB_NAME=org_management_db
 DB_USER=org_user
-DB_PASSWORD=1252
+DB_PASSWORD= password
 DB_HOST=localhost
-DB_PORT=5432
+DB_PORT=port
 
 CORS_ALLOWED_ORIGINS=http://localhost:5173
 ```
